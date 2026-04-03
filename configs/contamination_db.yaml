@@ -1,0 +1,48 @@
+root_dir: "/data/shared/contamination_db"
+panel_name: "vertebrate_panel"
+db_version: "v2026.03"
+threads: 32
+cleanup_staging: true
+force: false
+kraken2_base: "none"
+kraken2_use_ftp: true
+
+build:
+  kraken2: true
+  bracken: true
+  fastq_screen: true
+
+paths:
+  kraken2_root: "/data/shared/contamination_db/kraken2"
+  bracken_root: "/data/shared/contamination_db/bracken"
+  fastq_screen_root: "/data/shared/contamination_db/fastq_screen"
+
+bracken:
+  read_lengths: [75, 100, 151]
+
+species:
+  - label: human
+    taxid: 9606
+    fasta_url: "https://ftp.ensembl.org/pub/current_fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+    filename: "human.fa.gz"
+    enabled: true
+    fastq_screen_label: "Human"
+  - label: mouse
+    taxid: 10090
+    fasta_url: "https://ftp.ensembl.org/pub/current_fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz"
+    filename: "mouse.fa.gz"
+    enabled: true
+    fastq_screen_label: "Mouse"
+  - label: rat
+    taxid: 10116
+    fasta_url: "https://ftp.ensembl.org/pub/current_fasta/rattus_norvegicus/dna/Rattus_norvegicus.GRCr8.dna.toplevel.fa.gz"
+    filename: "rat.fa.gz"
+    enabled: true
+    fastq_screen_label: "Rat"
+  - label: phix
+    taxid: 10847
+    fasta_url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NC_001422.1&rettype=fasta&retmode=text"
+    filename: "phix.fa"
+    enabled: true
+    fastq_screen_label: "PhiX"
+

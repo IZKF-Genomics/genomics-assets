@@ -1,0 +1,10 @@
+base_url: https://raw.githubusercontent.com/Boyle-Lab/Blacklist/master/lists
+files:
+  - ce10-blacklist.v2.bed.gz
+  - ce11-blacklist.v2.bed.gz
+  - dm3-blacklist.v2.bed.gz
+  - dm6-blacklist.v2.bed.gz
+  - hg19-blacklist.v2.bed.gz
+  - hg38-blacklist.v2.bed.gz
+  - mm10-blacklist.v2.bed.gz
+
