@@ -19,6 +19,40 @@ genomics-assets tenx fetch --config configs/ref_10xgenomics.yaml --outdir /data/
 genomics-assets blacklists fetch --config configs/ref_genome_blacklists.yaml --outdir /data/ref_genome_blacklists
 ```
 
+## Quickstart
+
+Recommended facility workflow:
+
+```bash
+cd /data
+gh repo clone IZKF-Genomics/genomics-assets
+cd genomics-assets
+pixi install
+```
+
+Then run one of the bundled tasks:
+
+```bash
+pixi run ref-genomes
+pixi run contamination-db
+pixi run tenx
+pixi run blacklists
+```
+
+You can also call the CLI directly through Pixi:
+
+```bash
+pixi run python -m genomics_assets.cli ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes
+```
+
+Currently configured Pixi tasks:
+
+- `ref-genomes`
+- `contamination-db`
+- `tenx`
+- `blacklists`
+- `test`
+
 ## Fixed server paths
 
 This repository intentionally uses fixed result paths because that is how assets are organized on the facility servers.
