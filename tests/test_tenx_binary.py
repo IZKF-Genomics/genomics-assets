@@ -52,15 +52,15 @@ def test_fetch_binaries_download_extract_and_link() -> None:
                         {
                             "binaries": [
                                 {
-                                    "url": f"http://127.0.0.1:{server.server_port}/{tarballs[0].name}",
+                                    "url": f"http://127.0.0.1:{server.server_port}/{tarballs[0].name}?Expires=9999999999&Signature=test",
                                     "symlink_name": "cellranger",
                                 },
                                 {
-                                    "url": f"http://127.0.0.1:{server.server_port}/{tarballs[1].name}",
+                                    "url": f"http://127.0.0.1:{server.server_port}/{tarballs[1].name}?Expires=9999999999&Signature=test",
                                     "symlink_name": "cellranger-atac",
                                 },
                                 {
-                                    "url": f"http://127.0.0.1:{server.server_port}/{tarballs[2].name}",
+                                    "url": f"http://127.0.0.1:{server.server_port}/{tarballs[2].name}?Expires=9999999999&Signature=test",
                                     "symlink_name": "spaceranger",
                                 },
                             ]

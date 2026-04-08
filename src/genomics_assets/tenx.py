@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from .common import download_file, extract_tarball, load_yaml, log
 
@@ -58,7 +59,11 @@ def fetch_binary_entry(*, url: str, outdir: Path, symlink_name: str = "") -> Pat
     outdir = outdir.resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    tarball = outdir / Path(url).name
+    parsed = urlparse(url)
+    tarball_name = Path(parsed.path).name
+    if not tarball_name:
+        raise SystemExit(f"Could not derive tarball filename from URL: {url}")
+    tarball = outdir / tarball_name
     extracted_dir = outdir / tarball.name.removesuffix(".tar.gz")
     symlink_name = symlink_name.strip()
 
