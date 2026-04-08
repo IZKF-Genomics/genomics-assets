@@ -16,8 +16,8 @@ kraken2 = "*"
 bracken = "*"
 
 [tasks]
-test = "python -m pytest -q"
-ref-genomes = "python -m genomics_assets.cli ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes"
-contamination-db = "python -m genomics_assets.cli contamination-db build --config configs/contamination_db.yaml"
-tenx = "python -m genomics_assets.cli tenx fetch --config configs/ref_10xgenomics.yaml --outdir /data/shared/10xGenomics"
-blacklists = "python -m genomics_assets.cli blacklists fetch --config configs/ref_genome_blacklists.yaml --outdir /data/ref_genome_blacklists"
+test = "PYTHONPATH=src python -m pytest -q"
+ref-genomes = "PYTHONPATH=src python -m genomics_assets.cli ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes"
+contamination-db = "PYTHONPATH=src python -m genomics_assets.cli contamination-db build --config configs/contamination_db.yaml"
+tenx = "PYTHONPATH=src python -m genomics_assets.cli tenx fetch --config configs/ref_10xgenomics.yaml --outdir /data/shared/10xGenomics"
+blacklists = "PYTHONPATH=src python -m genomics_assets.cli blacklists fetch --config configs/ref_genome_blacklists.yaml --outdir /data/ref_genome_blacklists"
