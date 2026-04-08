@@ -188,6 +188,14 @@ The URLs live in [tenx_binaries.yaml](/data/genomics-assets/configs/tenx_binarie
 pixi run tenx-binaries
 ```
 
+To expose the stable binary symlinks on Linux shells, add this directory to `PATH`:
+
+```bash
+export PATH="/data/shared/10xGenomics/bin:$PATH"
+```
+
+That makes `cellranger`, `cellranger-atac`, and `spaceranger` directly available on the command line.
+
 ### Genome blacklists
 
 Fetched under:
