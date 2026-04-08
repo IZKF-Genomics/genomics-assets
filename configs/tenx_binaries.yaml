@@ -1,0 +1,10 @@
+binaries:
+  - name: cellranger
+    url: "https://cf.10xgenomics.com/releases/cell-exp/cellranger-10.0.0.tar.gz?Expires=1775719254&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=Lh7jeWyYgv-N7If~XGaH-AEOR3JwES5bWbXXtuuAJUtpj1WC0KYXFODeAg0GEUj4kEyzuMagrLjhYzgtxmYz9g4LN5P7THxHfY4zaIpgPi~XcGSE9bbC6~qR27YrmKlPyinmGYN6T-p6k4QbkKvWDUfq1-m-z1yGNECbpa8AULUH5YWTAyYv3Hw4oWg2pP72xP-Y3fZeHx31PQ65YksG9ADHF9P9P4xjwlmAz3NG2Ck2ouLtr3WKtm9wSfhTdkJqJZRMXO~De89kFrJ0cNkZHsKYsPiuZmu~vdlIdffdXTyc55L~~i8snJti62K3j3Ya91Q3uI4Abr40wB4rlrqTeg__"
+    symlink_name: cellranger
+  - name: cellranger-atac
+    url: "https://cf.10xgenomics.com/releases/cell-atac/cellranger-atac-2.2.0.tar.gz?Expires=1775719359&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=ow4W1Y6NQ2eLyF7fDqd3IL746c0Hi2fWgwNbqq87QAvWQq0G9lmAQl4YEyjog-GHfisVnRD3zX~~sHvLpkdcfnLwM2~zslxX78YuXcLNLVdB2KhDos2rEPWhLhaQiPcFb5WQkDMrHsmm4g2Ev37tGoUIhPCCN6sNLsLg8y9Y8BjMOOUMJntGQ9jogXQyzgDOFHEr56et~-WdVEDHOkarkpaC4mrANwMPN3-xtTazrsi41BrJNtljnLMLs6bBFUG3E8S54cUfjFibV3dcP48WAqfLRRXczyTJKvAgmctOj2-OG5OCM3HGKndqcuTdYSUWPq3JTlP14EwTUUBL4q91WA__"
+    symlink_name: cellranger-atac
+  - name: spaceranger
+    url: "https://cf.10xgenomics.com/releases/spatial-exp/spaceranger-4.1.0.tar.gz?Expires=1775719431&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=P4PADDTIugM5P~O9ghhoNf51n7JUVfsWEBWrADVKepvNceWx8c7m5uy4Vhlq09~8JjXj27oreCkUf2lnnu3It9LY6cMW8Mz1W8pDb783WbjccDOvI9kWlQ5Mzx9oJNMwvX-YqGoKhZ91WjX-0BVMOvpqA-ESkkVX4XJP1hg7dTXy6Awid26LI-YzFMgNEI2qC8CAGNV1VDiTiDXpCG16B3tjlDYDj-WCHuiZmyKdE8zTSPK5ZMb1-7VPc23ceYDIIl4t6GRoYRn35Ucu7ILumaNkYLuSEe6C7ZZ6eLXqZJ24LqmIJyhC6aNKUULKPEvwbMQXJL3zfKJkI3gWFlTKFw__"
+    symlink_name: spaceranger

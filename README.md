@@ -15,8 +15,9 @@ It groups facility infrastructure that was previously spread across several BPM 
 ```bash
 genomics-assets ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes
 genomics-assets contamination-db build --config configs/contamination_db.yaml
-genomics-assets tenx fetch --config configs/ref_10xgenomics.yaml --outdir /data/shared/10xGenomics
+genomics-assets tenx fetch --config configs/ref_10xgenomics.yaml --outdir /data/shared/10xGenomics/refs
 genomics-assets blacklists fetch --config configs/ref_genome_blacklists.yaml --outdir /data/ref_genome_blacklists
+genomics-assets tenx fetch-binaries --config configs/tenx_binaries.yaml --outdir /data/shared/10xGenomics/bin
 ```
 
 ## Quickstart
@@ -37,6 +38,7 @@ pixi run ref-genomes
 pixi run contamination-db
 pixi run tenx
 pixi run blacklists
+pixi run tenx-binaries
 ```
 
 You can also call the CLI directly through Pixi:
@@ -51,6 +53,7 @@ Currently configured Pixi tasks:
 - `contamination-db`
 - `tenx`
 - `blacklists`
+- `tenx-binaries`
 - `test`
 
 ## Fixed server paths
@@ -62,8 +65,20 @@ Default targets from the bundled configs:
 
 - `ref-genomes`: `/data/ref_genomes`
 - `contamination-db`: `/data/shared/contamination_db`
-- `tenx`: `/data/shared/10xGenomics`
+- `tenx`: `/data/shared/10xGenomics/refs`
 - `blacklists`: `/data/ref_genome_blacklists`
+- `tenx-binaries`: `/data/shared/10xGenomics/bin`
+
+## 10x Storage Policy
+
+10x assets are intentionally split by type:
+
+- references live under `/data/shared/10xGenomics/refs`
+- Linux executables live under `/data/shared/10xGenomics/bin`
+- stable symlinks in `bin/` point to the active binary version
+
+This keeps immutable reference bundles separate from runnable software and
+reduces ambiguity when binaries are upgraded independently of references.
 
 ## Result layout
 
@@ -136,13 +151,41 @@ configs/results/
 Fetched under:
 
 ```text
-/data/shared/10xGenomics/
+/data/shared/10xGenomics/refs/
   refdata-gex-GRCh38-2024-A/
   refdata-gex-GRCm39-2024-A/
   refdata-gex-mRatBN7-2-2024-A/
   refdata-gex-GRCh38_and_GRCm39-2024-A/
   refdata-cellranger-vdj-GRCh38-alts-ensembl-7.1.0/
   refdata-cellranger-vdj-GRCm38-alts-ensembl-7.0.0/
+  refdata-cellranger-arc-GRCh38-2024-A/
+  refdata-cellranger-arc-GRCm39-2024-A/
+```
+
+The URLs live in [ref_10xgenomics.yaml](/data/genomics-assets/configs/ref_10xgenomics.yaml). Run:
+
+```bash
+pixi run tenx
+```
+
+### 10x Linux binaries
+
+Downloaded under:
+
+```text
+/data/shared/10xGenomics/bin/
+  cellranger-10.0.0/
+  cellranger-atac-2.2.0/
+  spaceranger-4.1.0/
+  cellranger -> cellranger-10.0.0
+  cellranger-atac -> cellranger-atac-2.2.0
+  spaceranger -> spaceranger-4.1.0
+```
+
+The URLs live in [tenx_binaries.yaml](/data/genomics-assets/configs/tenx_binaries.yaml). Run:
+
+```bash
+pixi run tenx-binaries
 ```
 
 ### Genome blacklists
@@ -171,5 +214,5 @@ Fetched under:
 
 - The first version is a direct migration of the facility BPM templates into one standalone repo.
 - `ref-genomes` and `contamination-db` are Python-backed builders.
-- `tenx` and `blacklists` are lightweight download/fetch commands.
+- `tenx`, `tenx-binaries`, and `blacklists` are lightweight download/fetch commands.
 - If the facility server layout changes later, update the bundled configs and this README together so the documented paths stay authoritative.

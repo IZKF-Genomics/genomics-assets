@@ -13,6 +13,7 @@ def test_configs_exist_and_load() -> None:
         "ref_genomes.yaml",
         "contamination_db.yaml",
         "ref_10xgenomics.yaml",
+        "tenx_binaries.yaml",
         "ref_genome_blacklists.yaml",
     ]:
         path = ROOT / "configs" / name
@@ -24,4 +25,3 @@ def test_configs_exist_and_load() -> None:
 def test_ercc_assets_exist() -> None:
     assert (ROOT / "assets" / "ERCC92" / "ERCC92.fa").exists()
     assert (ROOT / "assets" / "ERCC92" / "ERCC92.gtf").exists()
-
