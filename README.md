@@ -1,28 +1,22 @@
 # genomics-assets
 
-`genomics-assets` manages shared reference and QC assets for the IZKF genomics facility.
+`genomics-assets` is the IZKF genomics facility repository for preparing and storing shared genomics assets in fixed server locations.
 
-It groups facility infrastructure that was previously spread across several BPM templates:
+It covers:
 
 - reference genomes and aligner indices
 - contamination databases for Kraken2, Bracken, and FastQ Screen
 - 10x Genomics reference bundles
+- 10x Linux binaries
 - genome blacklists
 - bundled control assets such as ERCC spike-ins
 
-## Commands
+## Purpose
 
-```bash
-genomics-assets ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes
-genomics-assets contamination-db build --config configs/contamination_db.yaml
-genomics-assets tenx fetch --config configs/ref_10xgenomics.yaml --outdir /data/shared/10xGenomics/refs
-genomics-assets blacklists fetch --config configs/ref_genome_blacklists.yaml --outdir /data/ref_genome_blacklists
-genomics-assets tenx fetch-binaries --config configs/tenx_binaries.yaml --outdir /data/shared/10xGenomics/bin
-```
+Use this repository when we need to build or fetch facility-wide assets in a reproducible way.
+The bundled [`pixi` tasks](./pixi.toml) run the canonical commands with the repository's maintained config files and write results to the expected shared destinations.
 
-## Quickstart
-
-Recommended facility workflow:
+## Setup
 
 ```bash
 cd /data
@@ -31,58 +25,37 @@ cd genomics-assets
 pixi install
 ```
 
-Then run one of the bundled tasks:
+## Pixi Commands
+
+The main day-to-day interface is `pixi run`:
 
 ```bash
 pixi run ref-genomes
 pixi run contamination-db
 pixi run tenx
-pixi run blacklists
 pixi run tenx-binaries
+pixi run blacklists
 ```
 
-You can also call the CLI directly through Pixi:
+If needed, you can also call the CLI directly through Pixi:
 
 ```bash
 pixi run python -m genomics_assets.cli ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes
 ```
 
-Currently configured Pixi tasks:
+## Command Map
 
-- `ref-genomes`
-- `contamination-db`
-- `tenx`
-- `blacklists`
-- `tenx-binaries`
-- `test`
+Each bundled task uses a maintained config file and writes to a fixed destination:
 
-## Fixed server paths
+| `pixi run` task | Config file | Result destination |
+| --- | --- | --- |
+| `ref-genomes` | [`configs/ref_genomes.yaml`](/data/genomics-assets/configs/ref_genomes.yaml) | `/data/ref_genomes` |
+| `contamination-db` | [`configs/contamination_db.yaml`](/data/genomics-assets/configs/contamination_db.yaml) | `/data/shared/contamination_db` |
+| `tenx` | [`configs/ref_10xgenomics.yaml`](/data/genomics-assets/configs/ref_10xgenomics.yaml) | `/data/shared/10xGenomics/refs` |
+| `tenx-binaries` | [`configs/tenx_binaries.yaml`](/data/genomics-assets/configs/tenx_binaries.yaml) | `/data/shared/10xGenomics/bin` |
+| `blacklists` | [`configs/ref_genome_blacklists.yaml`](/data/genomics-assets/configs/ref_genome_blacklists.yaml) | `/data/ref_genome_blacklists` |
 
-This repository intentionally uses fixed result paths because that is how assets are organized on the facility servers.
-The starter configs are not generic examples. They reflect the current canonical server layout.
-
-Default targets from the bundled configs:
-
-- `ref-genomes`: `/data/ref_genomes`
-- `contamination-db`: `/data/shared/contamination_db`
-- `tenx`: `/data/shared/10xGenomics/refs`
-- `blacklists`: `/data/ref_genome_blacklists`
-- `tenx-binaries`: `/data/shared/10xGenomics/bin`
-
-## 10x Storage Policy
-
-10x assets are intentionally split by type:
-
-- references live under `/data/shared/10xGenomics/refs`
-- Linux executables live under `/data/shared/10xGenomics/bin`
-- stable symlinks in `bin/` point to the active binary version
-
-This keeps immutable reference bundles separate from runnable software and
-reduces ambiguity when binaries are upgraded independently of references.
-
-## Result layout
-
-Quick overview of where assets end up after a build or fetch:
+## Result Destinations
 
 ### Reference genomes
 
@@ -113,6 +86,12 @@ Built under:
   ...
 ```
 
+Run:
+
+```bash
+pixi run ref-genomes
+```
+
 ### Contamination databases
 
 Built under:
@@ -138,12 +117,18 @@ Built under:
       current -> v2026.03
 ```
 
-Build metadata is written next to the config under:
+Build metadata is also written under:
 
 ```text
 configs/results/
   genome_manifest_resolved.csv
   db_build_info.yaml
+```
+
+Run:
+
+```bash
+pixi run contamination-db
 ```
 
 ### 10x references
@@ -162,7 +147,7 @@ Fetched under:
   refdata-cellranger-arc-GRCm39-2024-A/
 ```
 
-The URLs live in [ref_10xgenomics.yaml](/data/genomics-assets/configs/ref_10xgenomics.yaml). Run:
+Run:
 
 ```bash
 pixi run tenx
@@ -182,7 +167,7 @@ Downloaded under:
   spaceranger -> spaceranger-4.1.0
 ```
 
-The URLs live in [tenx_binaries.yaml](/data/genomics-assets/configs/tenx_binaries.yaml). Run:
+Run:
 
 ```bash
 pixi run tenx-binaries
@@ -193,8 +178,6 @@ To expose the stable binary symlinks on Linux shells, add this directory to `PAT
 ```bash
 export PATH="/data/shared/10xGenomics/bin:$PATH"
 ```
-
-That makes `cellranger`, `cellranger-atac`, and `spaceranger` directly available on the command line.
 
 ### Genome blacklists
 
@@ -211,16 +194,26 @@ Fetched under:
   mm10-blacklist.v2.bed.gz
 ```
 
-## Layout
+Run:
 
-- `configs/`: starter configuration files
+```bash
+pixi run blacklists
+```
+
+## Config Files
+
+Quick links to the maintained configuration files:
+
+- [`configs/ref_genomes.yaml`](/data/genomics-assets/configs/ref_genomes.yaml)
+- [`configs/contamination_db.yaml`](/data/genomics-assets/configs/contamination_db.yaml)
+- [`configs/ref_10xgenomics.yaml`](/data/genomics-assets/configs/ref_10xgenomics.yaml)
+- [`configs/tenx_binaries.yaml`](/data/genomics-assets/configs/tenx_binaries.yaml)
+- [`configs/ref_genome_blacklists.yaml`](/data/genomics-assets/configs/ref_genome_blacklists.yaml)
+
+## Repository Layout
+
+- `configs/`: maintained config files
 - `assets/`: bundled local assets such as ERCC references
 - `src/genomics_assets/`: Python package and CLI
 - `tests/`: smoke tests for config loading and artifact planning
-
-## Notes
-
-- The first version is a direct migration of the facility BPM templates into one standalone repo.
-- `ref-genomes` and `contamination-db` are Python-backed builders.
-- `tenx`, `tenx-binaries`, and `blacklists` are lightweight download/fetch commands.
-- If the facility server layout changes later, update the bundled configs and this README together so the documented paths stay authoritative.
+- [`pixi.toml`](/data/genomics-assets/pixi.toml): task definitions used by `pixi run`
