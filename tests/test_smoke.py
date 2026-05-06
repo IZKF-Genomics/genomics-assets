@@ -13,6 +13,7 @@ def test_configs_exist_and_load() -> None:
         "ref_genomes.yaml",
         "contamination_db.yaml",
         "ref_10xgenomics.yaml",
+        "ref_10xgenomics_custom.yaml",
         "tenx_binaries.yaml",
         "ref_genome_blacklists.yaml",
     ]:

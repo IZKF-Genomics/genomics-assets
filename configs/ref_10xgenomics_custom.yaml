@@ -1,0 +1,32 @@
+# Custom Cell Ranger references built with:
+#   cellranger mkgtf
+#   cellranger mkref
+#
+# Keep this file for facility-managed custom refs that are built from local FASTA/GTF inputs.
+# Keep upstream 10x download URLs in configs/ref_10xgenomics.yaml instead.
+#
+# Typical usage:
+#   pixi run tenx-custom
+#
+defaults:
+  cellranger_bin: /data/shared/10xGenomics/bin/cellranger/bin/cellranger
+  nthreads: 16
+  memgb: 64
+  ref_version: Ensembl-115
+  build_info_name: genomics_assets_build_info.yaml
+
+references:
+  - id: GRCz11
+    output_name: refdata-gex-GRCz11-ensembl115-2026-A
+    fasta: /data/ref_genomes/GRCz11/src/Danio_rerio.GRCz11.dna.toplevel.fa
+    gtf: /data/ref_genomes/GRCz11/src/Danio_rerio.GRCz11.115.gtf
+    # Optional mkgtf filters passed as:
+    #   cellranger mkgtf <input.gtf> <filtered.gtf> --attribute=<value>
+    mkgtf_attributes:
+      - gene_biotype:protein_coding
+  - id: GRCg7b
+    output_name: refdata-gex-GRCg7b-ensembl115-2026-A
+    fasta: /data/ref_genomes/GRCg7b/src/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.dna.toplevel.fa
+    gtf: /data/ref_genomes/GRCg7b/src/Gallus_gallus.bGalGal1.mat.broiler.GRCg7b.115.gtf
+    mkgtf_attributes:
+      - gene_biotype:protein_coding

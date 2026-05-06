@@ -7,6 +7,7 @@ It covers:
 - reference genomes and aligner indices
 - contamination databases for Kraken2, Bracken, and FastQ Screen
 - 10x Genomics reference bundles
+- custom 10x Genomics references built with `cellranger mkref`
 - 10x Linux binaries
 - genome blacklists
 - bundled control assets such as ERCC spike-ins
@@ -33,6 +34,7 @@ The main day-to-day interface is `pixi run`:
 pixi run ref-genomes
 pixi run contamination-db
 pixi run tenx
+pixi run tenx-custom
 pixi run tenx-binaries
 pixi run blacklists
 ```
@@ -41,6 +43,7 @@ If needed, you can also call the CLI directly through Pixi:
 
 ```bash
 pixi run python -m genomics_assets.cli ref-genomes build --config configs/ref_genomes.yaml --outdir /data/ref_genomes
+pixi run python -m genomics_assets.cli tenx build-ref --config configs/ref_10xgenomics_custom.yaml --outdir /data/shared/10xGenomics/refs
 ```
 
 ## Command Map
@@ -52,6 +55,7 @@ Each bundled task uses a maintained config file and writes to a fixed destinatio
 | `ref-genomes` | [`configs/ref_genomes.yaml`](/data/genomics-assets/configs/ref_genomes.yaml) | `/data/ref_genomes` |
 | `contamination-db` | [`configs/contamination_db.yaml`](/data/genomics-assets/configs/contamination_db.yaml) | `/data/shared/contamination_db` |
 | `tenx` | [`configs/ref_10xgenomics.yaml`](/data/genomics-assets/configs/ref_10xgenomics.yaml) | `/data/shared/10xGenomics/refs` |
+| `tenx-custom` | [`configs/ref_10xgenomics_custom.yaml`](/data/genomics-assets/configs/ref_10xgenomics_custom.yaml) | `/data/shared/10xGenomics/refs` |
 | `tenx-binaries` | [`configs/tenx_binaries.yaml`](/data/genomics-assets/configs/tenx_binaries.yaml) | `/data/shared/10xGenomics/bin` |
 | `blacklists` | [`configs/ref_genome_blacklists.yaml`](/data/genomics-assets/configs/ref_genome_blacklists.yaml) | `/data/ref_genome_blacklists` |
 
@@ -177,6 +181,68 @@ Run:
 pixi run tenx
 ```
 
+### Custom 10x references
+
+Built with `cellranger mkref` under the same shared destination, for example:
+
+```text
+/data/shared/10xGenomics/refs/
+  refdata-gex-GRCz11-ensembl115-2026-A/
+    fasta/
+    genes/
+    reference.json
+    genomics_assets_build_info.yaml
+  .build/
+    refdata-gex-GRCz11-ensembl115-2026-A/
+      Danio_rerio.GRCz11.115.filtered.gtf
+```
+
+The maintained recipe lives in:
+
+- [`configs/ref_10xgenomics_custom.yaml`](/data/genomics-assets/configs/ref_10xgenomics_custom.yaml)
+
+Run:
+
+```bash
+pixi run tenx-custom
+```
+
+Direct CLI form:
+
+```bash
+pixi run python -m genomics_assets.cli tenx build-ref \
+  --config configs/ref_10xgenomics_custom.yaml \
+  --outdir /data/shared/10xGenomics/refs
+```
+
+This task expects the stable Cell Ranger binary to be available at:
+
+```text
+/data/shared/10xGenomics/bin/cellranger
+```
+
+The build recipe records:
+
+- source FASTA and GTF paths
+- optional `mkgtf` filters
+- Cell Ranger version
+- threads, memory, and ref-version settings
+- exact `mkgtf` and `mkref` commands used
+
+Recommended facility pattern:
+
+- reuse FASTA and GTF files already staged under `/data/ref_genomes/<genome>/src/`
+- give each built reference a versioned `output_name`, for example `refdata-gex-GRCz11-ensembl115-2026-A`
+- keep downloaded upstream 10x tarballs in [`configs/ref_10xgenomics.yaml`](/data/genomics-assets/configs/ref_10xgenomics.yaml)
+- keep custom `mkref` recipes in [`configs/ref_10xgenomics_custom.yaml`](/data/genomics-assets/configs/ref_10xgenomics_custom.yaml)
+
+For a new species or custom reference, the minimal inputs are:
+
+- a matching FASTA
+- a matching GTF
+- an optional list of `cellranger mkgtf --attribute=...` filters
+- enough memory and threads for `cellranger mkref`
+
 ### 10x Linux binaries
 
 Downloaded under:
@@ -231,6 +297,7 @@ Quick links to the maintained configuration files:
 - [`configs/ref_genomes.yaml`](/data/genomics-assets/configs/ref_genomes.yaml)
 - [`configs/contamination_db.yaml`](/data/genomics-assets/configs/contamination_db.yaml)
 - [`configs/ref_10xgenomics.yaml`](/data/genomics-assets/configs/ref_10xgenomics.yaml)
+- [`configs/ref_10xgenomics_custom.yaml`](/data/genomics-assets/configs/ref_10xgenomics_custom.yaml)
 - [`configs/tenx_binaries.yaml`](/data/genomics-assets/configs/tenx_binaries.yaml)
 - [`configs/ref_genome_blacklists.yaml`](/data/genomics-assets/configs/ref_genome_blacklists.yaml)
 
