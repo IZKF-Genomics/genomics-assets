@@ -73,15 +73,69 @@ def index_hisat2(fasta: Path, outdir: Path, prefix: str) -> None:
     run_cmd(["hisat2-build", str(fasta), str(outdir / prefix)])
 
 
-def index_salmon(fasta: Path, outdir: Path) -> None:
-    run_cmd(["salmon", "index", "-t", str(fasta), "-i", str(outdir)])
+def index_salmon(transcripts: Path, outdir: Path) -> None:
+    run_cmd(["salmon", "index", "-t", str(transcripts), "-i", str(outdir)])
 
 
-def index_kallisto(fasta: Path, outdir: Path) -> None:
-    run_cmd(["kallisto", "index", "-i", str(outdir / "kallisto.idx"), str(fasta)])
+def index_kallisto(transcripts: Path, outdir: Path) -> None:
+    run_cmd(["kallisto", "index", "-i", str(outdir / "kallisto.idx"), str(transcripts)])
 
 
-def build_indices(genome_id: str, fasta: Path, gtf: Path | None, out_root: Path, tools: list[str], threads: int, force: bool) -> None:
+def build_gene_bed(gtf: Path, dest: Path, force: bool) -> Path:
+    ensure_dir(dest.parent)
+    if dest.exists() and dest.stat().st_size > 0 and not force:
+        log(f"exists: {dest}")
+        return dest
+    log(f"gtf2bed: {gtf} -> {dest}")
+    with gtf.open("rb") as src, dest.open("wb") as out:
+        subprocess.run(["gtf2bed"], stdin=src, stdout=out, check=True)
+    return dest
+
+
+def build_transcript_fasta(fasta: Path, gtf: Path, dest: Path, force: bool) -> Path:
+    ensure_dir(dest.parent)
+    if dest.exists() and dest.stat().st_size > 0 and not force:
+        log(f"exists: {dest}")
+        return dest
+    run_cmd(["gffread", str(gtf), "-g", str(fasta), "-w", str(dest)])
+    return dest
+
+
+def build_derived_assets(
+    genome_id: str,
+    fasta: Path,
+    gtf: Path | None,
+    src_dir: Path,
+    derived_assets: list[str],
+    force: bool,
+    *,
+    bed12_name: str | None = None,
+    transcript_fasta_name: str | None = None,
+) -> dict[str, Path]:
+    if not gtf:
+        return {}
+
+    outputs: dict[str, Path] = {}
+    requested = set(derived_assets)
+    if "bed12" in requested:
+        bed_path = src_dir / (bed12_name or f"{genome_id}.annotation.bed")
+        outputs["bed12"] = build_gene_bed(gtf, bed_path, force)
+    if "transcript_fasta" in requested:
+        transcript_path = src_dir / (transcript_fasta_name or f"{genome_id}.transcripts.fa")
+        outputs["transcript_fasta"] = build_transcript_fasta(fasta, gtf, transcript_path, force)
+    return outputs
+
+
+def build_indices(
+    genome_id: str,
+    fasta: Path,
+    gtf: Path | None,
+    transcript_fasta: Path | None,
+    out_root: Path,
+    tools: list[str],
+    threads: int,
+    force: bool,
+) -> None:
     for tool in tools:
         tool_dir = out_root / "indices" / tool
         if should_skip(tool_dir, force):
@@ -97,9 +151,9 @@ def build_indices(genome_id: str, fasta: Path, gtf: Path | None, out_root: Path,
         elif tool == "hisat2":
             index_hisat2(fasta, tool_dir, genome_id)
         elif tool == "salmon":
-            index_salmon(fasta, tool_dir)
+            index_salmon(transcript_fasta or fasta, tool_dir)
         elif tool == "kallisto":
-            index_kallisto(fasta, tool_dir)
+            index_kallisto(transcript_fasta or fasta, tool_dir)
         else:
             raise SystemExit(f"Unknown tool: {tool}")
         mark_done(tool_dir)
@@ -131,6 +185,7 @@ def run(args: argparse.Namespace) -> int:
     cfg = load_yaml(config_path)
     defaults = cfg.get("defaults") or {}
     tools_default = list(defaults.get("tools") or [])
+    derived_assets_default = list(defaults.get("derived_assets") or [])
     threads = int(defaults.get("threads") or 16)
     with_ercc = bool(cfg.get("with_ercc", True))
     ercc_cfg = cfg.get("ercc") or {}
@@ -148,6 +203,7 @@ def run(args: argparse.Namespace) -> int:
             continue
         gtf_src = genome.get("gtf")
         tools = list(genome.get("tools") or tools_default)
+        derived_assets = list(genome.get("derived_assets") or derived_assets_default)
 
         genome_root = outdir / genome_id
         src_dir = genome_root / "src"
@@ -165,7 +221,27 @@ def run(args: argparse.Namespace) -> int:
                 src_dir / (gtf_staged.stem if gtf_staged.suffix == ".gz" else gtf_staged.name),
             )
 
-        build_indices(str(genome_id), fasta_plain, gtf_plain, genome_root, tools, threads, args.force)
+        derived = build_derived_assets(
+            str(genome_id),
+            fasta_plain,
+            gtf_plain,
+            src_dir,
+            derived_assets,
+            args.force,
+            bed12_name=genome.get("bed12_name"),
+            transcript_fasta_name=genome.get("transcript_fasta_name"),
+        )
+
+        build_indices(
+            str(genome_id),
+            fasta_plain,
+            gtf_plain,
+            derived.get("transcript_fasta"),
+            genome_root,
+            tools,
+            threads,
+            args.force,
+        )
 
         if with_ercc:
             ercc_root = outdir / f"{genome_id}_with_ERCC"
@@ -177,6 +253,22 @@ def run(args: argparse.Namespace) -> int:
             if gtf_plain and ercc_gtf.exists():
                 ercc_gtf_out = ercc_src / f"{genome_id}_with_ERCC.gtf"
                 concat_files([gtf_plain, ercc_gtf], ercc_gtf_out, args.force)
-            build_indices(f"{genome_id}_with_ERCC", ercc_fa_out, ercc_gtf_out, ercc_root, tools, threads, args.force)
+            ercc_derived = build_derived_assets(
+                f"{genome_id}_with_ERCC",
+                ercc_fa_out,
+                ercc_gtf_out,
+                ercc_src,
+                derived_assets,
+                args.force,
+            )
+            build_indices(
+                f"{genome_id}_with_ERCC",
+                ercc_fa_out,
+                ercc_gtf_out,
+                ercc_derived.get("transcript_fasta"),
+                ercc_root,
+                tools,
+                threads,
+                args.force,
+            )
     return 0
-

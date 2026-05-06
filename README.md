@@ -65,6 +65,8 @@ Built under:
 /data/ref_genomes/
   GRCh38/
     src/
+      GRCh38.annotation.bed
+      GRCh38.transcripts.fa
     indices/
       star/
       bowtie2/
@@ -90,6 +92,28 @@ Run:
 
 ```bash
 pixi run ref-genomes
+```
+
+The `ref-genomes` task also writes derived annotation assets used by `nf-core/rnaseq`:
+
+- `<genome_id>.annotation.bed` from `gtf2bed`
+- `<genome_id>.transcripts.fa` from `gffread`
+
+To rebuild these derived files and any configured indices for all references:
+
+```bash
+cd /data/genomics-assets
+pixi run ref-genomes
+```
+
+To force regeneration:
+
+```bash
+cd /data/genomics-assets
+pixi run python -m genomics_assets.cli ref-genomes build \
+  --config configs/ref_genomes.yaml \
+  --outdir /data/ref_genomes \
+  --force
 ```
 
 ### Contamination databases

@@ -7,6 +7,7 @@ ercc:
 defaults:
   threads: 16
   memory_gb: 64
+  derived_assets: [bed12, transcript_fasta]
   tools: [star, bowtie2, bwa, hisat2, salmon, kallisto]
 
 genomes:

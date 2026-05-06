@@ -13,6 +13,8 @@ bwa = "*"
 hisat2 = "*"
 salmon = "*"
 kallisto = "*"
+bedops = "*"
+gffread = "*"
 kraken2 = "*"
 bracken = "*"
 
